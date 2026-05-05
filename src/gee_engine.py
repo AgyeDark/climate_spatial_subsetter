@@ -30,8 +30,7 @@ def initialize_gee():
         print("Earth Engine not authorized.")
         raise e
 
-# Run the authentication before doing anything else
-initialize_gee()
+# *** Notice I completely removed the global initialize_gee() call from here! ***
 
 # ==========================================
 # 2. DOWNLOAD FUNCTION
@@ -41,7 +40,10 @@ def download_gee_fallback(model, scenario, variable, start_date, end_date, min_l
     Queries the NASA-NEX CMIP6 collection on GEE, clips it to the bounding box,
     and downloads it as a GeoTIFF.
     """
-    # Ensure directory exists
+    # 1. Run the authentication ONLY when this function is actually called
+    initialize_gee()
+    
+    # 2. Ensure directory exists
     os.makedirs(output_dir, exist_ok=True)
     
     print("\n--- GEE Fallback Triggered ---")
@@ -94,6 +96,7 @@ def download_gee_fallback(model, scenario, variable, start_date, end_date, min_l
 
     except Exception as e:
         print(f"GEE Download failed: {e}")
+        return None        print(f"GEE Download failed: {e}")
         return Nonet=4.5,
         max_lat=11.5
     )
