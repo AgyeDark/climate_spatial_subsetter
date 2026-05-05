@@ -15,6 +15,9 @@ def initialize_gee():
             # Convert the Streamlit secrets into a standard Python dictionary
             secret_dict = dict(st.secrets["gcp_service_account"])
             
+            # CRITICAL FIX: Ensure the private key reads newlines correctly
+            secret_dict["private_key"] = secret_dict["private_key"].replace('\\n', '\n')
+            
             # Create credentials directly from memory (no files needed!)
             credentials = service_account.Credentials.from_service_account_info(secret_dict)
             
@@ -27,7 +30,8 @@ def initialize_gee():
         print("Earth Engine not authorized.")
         raise e
 
-# Run the authentication before doing aing elize_gee()l.")
+# Run the authentication before doing anything else
+initialize_gee()ize_gee()l.")
         raise e
 
 def download_gee_fallback(model, scenario, variable, start_date, end_date, min_lon, max_lon, min_lat, max_lat, output_dir="data/raw"):
