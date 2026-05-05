@@ -1,14 +1,15 @@
-import streamlit as st
-import os
-
-from src.esgf_engine import download_regional_subset
-from src.gee_engine import download_gee_fallback
-
-# --- PAGE CONFIGURATION ---
-st.set_page_config(page_title="Climate Data Subsetter", layout="wide")
-
-st.title("West Africa Climate Data Subsetter")
-st.markdown("Extract lightweight spatial subsets of CMIP6 climate projections without downloading global datasets.")
+import streamlit as st
+import os
+
+# --- PAGE CONFIGURATION MUST BE THE FIRST STREAMLIT COMMAND ---
+st.set_page_config(page_title="Climate Data Subsetter", layout="wide")
+
+# Now it is safe to import your custom engines
+from src.esgf_engine import download_regional_subset
+from src.gee_engine import download_gee_fallback
+
+st.title("West Africa Climate Data Subsetter")
+st.markdown("Extract lightweight spatial subsets of CMIP6 climate projections without downloading global datasets.")
 st.markdown("---")
 
 # --- KNOWLEDGE BASE: DYNAMIC MODEL DATABASE ---
