@@ -27,8 +27,7 @@ def initialize_gee():
         print("Earth Engine not authorized.")
         raise e
 
-# Run the authentication before doing anything else
-initialize_gee()l.")
+# Run the authentication before doing aing elize_gee()l.")
         raise e
 
 def download_gee_fallback(model, scenario, variable, start_date, end_date, min_lon, max_lon, min_lat, max_lat, output_dir="data/raw"):
