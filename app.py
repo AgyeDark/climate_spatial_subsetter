@@ -1,15 +1,27 @@
-import streamlit as st
-import os
-
-# --- PAGE CONFIGURATION MUST BE THE FIRST STREAMLIT COMMAND ---
-st.set_page_config(page_title="Climate Data Subsetter", layout="wide")
-
-# Now it is safe to import your custom engines
-from src.esgf_engine import download_regional_subset
-from src.gee_engine import download_gee_fallback
-
-st.title("West Africa Climate Data Subsetter")
-st.markdown("Extract lightweight spatial subsets of CMIP6 climate projections without downloading global datasets.")
+import streamlit as st
+
+import os
+
+
+
+# --- PAGE CONFIGURATION MUST BE THE FIRST STREAMLIT COMMAND ---
+
+st.set_page_config(page_title="Climate Data Subsetter", layout="wide")
+
+
+
+# Now it is safe to import your custom engines
+
+from src.esgf_engine import download_regional_subset
+
+from src.gee_engine import download_gee_fallback
+
+
+
+st.title("West Africa Climate Data Subsetter")
+
+st.markdown("Extract lightweight spatial subsets of CMIP6 climate projections without downloading global datasets.")
+
 st.markdown("---")
 
 # --- KNOWLEDGE BASE: DYNAMIC MODEL DATABASE ---
@@ -61,6 +73,16 @@ if st.button("Extract & Download Localized Data", type="primary"):
     
     var_shortcode = "pr" if "Precipitation" in variable else "tasmax" if "Max" in variable else "tasmin"
     
+    # --- NEW: Dynamic Date Logic ---
+    # CMIP6 Historical ends in 2014. SSPs cover the future.
+    if scenario.lower() == "historical":
+        target_start = '2000-01-01'
+        target_end = '2000-12-31'
+    else:
+        target_start = '2030-01-01'
+        target_end = '2030-12-31'
+    # -------------------------------
+    
     # MVP test URL (We will make this dynamic in the final phase)
     test_esgf_url = "http://esgf-data.dkrz.de/thredds/dodsC/CMIP6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r1i1p1f1/day/pr/gn/v20190710/pr_day_MPI-ESM1-2-LR_historical_r1i1p1f1_gn_18500101-18691231.nc"
     
@@ -78,7 +100,7 @@ if st.button("Extract & Download Localized Data", type="primary"):
                     with st.spinner('Querying Google Earth Engine...'):
                         gee_file = download_gee_fallback(
                             model, scenario.lower(), var_shortcode, 
-                            '2030-01-01', '2030-12-31', 
+                            target_start, target_end,  # <-- Replaced the hardcoded dates!
                             min_lon, max_lon, min_lat, max_lat
                         )
                         if gee_file:
@@ -90,7 +112,7 @@ if st.button("Extract & Download Localized Data", type="primary"):
             with st.spinner('Bypassing ESGF. Querying Google Earth Engine directly...'):
                 gee_file = download_gee_fallback(
                     model, scenario.lower(), var_shortcode, 
-                    '2030-01-01', '2030-12-31', 
+                    target_start, target_end,  # <-- Replaced the hardcoded dates!
                     min_lon, max_lon, min_lat, max_lat
                 )
                 if gee_file:
