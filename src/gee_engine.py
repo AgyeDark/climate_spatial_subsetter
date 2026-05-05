@@ -4,7 +4,7 @@ import os
 from google.oauth2 import service_account
 
 # --- NEW AUTHENTICATION CODE ---
-def initialize_gee():
+def initializegee():
     """
     Initializes the Earth Engine API using Streamlit Secrets if available, 
     otherwise falls back to local authentication.
