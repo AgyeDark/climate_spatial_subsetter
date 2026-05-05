@@ -1,6 +1,9 @@
 streamlit
-xarray
-netCDF4
-dask
 earthengine-api
-requests
+google-auth
+rasterio
+pandas
+numpy
+plotly
+folium
+streamlit-folium
