@@ -8,17 +8,23 @@ from google.oauth2 import service_account
 # 1. AUTHENTICATION SETUP
 # ==========================================
 def initialize_gee():
-    """
-    Initializes the Earth Engine API using Streamlit Secrets if available, 
-    otherwise falls back to local authentication.
-    """
     try:
-        if "gcp_service_account" in st.secrets:
-            secret_dict = dict(st.secrets["gcp_service_account"])
-            secret_dict["private_key"] = secret_dict["private_key"].replace('\\n', '\n')
+        # --- NEW WIRETAP CODE ---
+        print("\n--- AUTHENTICATION CHECK ---")
+        print("Keys found in Streamlit Secrets:", list(st.secrets.keys()))
+        # ------------------------
+
+        # Check if we are on Streamlit Cloud and have secrets
+        if "GOOGLE_CREDENTIALS" in st.secrets:
+            print("GOOGLE_CREDENTIALS found! Attempting login...")
+            # Safely decode the raw JSON string
+            secret_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"])
             credentials = service_account.Credentials.from_service_account_info(secret_dict)
             ee.Initialize(credentials)
+            print("Earth Engine Login Successful!")
         else:
+            print("WARNING: GOOGLE_CREDENTIALS not found in secrets. Falling back to local mode.")
+            # Fallback for local testing
             ee.Initialize()
     except Exception as e:
         print("Earth Engine not authorized.")
