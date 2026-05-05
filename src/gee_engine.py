@@ -80,7 +80,7 @@ def download_gee_fallback(model, scenario, variable, start_date, end_date, min_l
 
     except Exception as e:
         print(f"GEE Download failed: {e}")
-        return Noneone        print(f"GEE Download failed: {e}")
+        return None(f"GEE Download failed: {e}")
         return Nonet=4.5,
         max_lat=11.5
     )
