@@ -25,11 +25,23 @@ st.markdown("Extract lightweight spatial subsets of CMIP6 climate projections wi
 st.markdown("---")
 
 # --- KNOWLEDGE BASE: DYNAMIC MODEL DATABASE ---
-# You can expand these lists later with as many models as you want!
+# These exact string names are verified to match the NASA NEX-GDDP-CMIP6 Earth Engine catalog.
 MODEL_DATABASE = {
-    "Vegetation & Agricultural Accounting (Earth System Models)": ["EC-Earth3-Veg", "CESM2", "NorESM2-LM"],
-    "Extreme Weather & Urban Flooding (High Resolution)": ["MPI-ESM1-2-HR", "CMCC-CM2-HR4", "EC-Earth3-HR"],
-    "General Basin Hydrology (Well-balanced for West Africa)": ["MIROC6", "MPI-ESM1-2-LR", "CNRM-CM6-1"]
+    "Vegetation & Agricultural Accounting (Earth System Models)": [
+        "EC-Earth3-Veg-LR", # Fixed naming
+        "GFDL-ESM4",        # Replaced CESM2 with an available NASA Earth System Model
+        "NorESM2-LM"
+    ],
+    "Extreme Weather & Urban Flooding (High Resolution)": [
+        "MPI-ESM1-2-HR", 
+        "CMCC-CM2-SR5",     # Replaced HR4 with SR5, which is available in GDDP
+        "EC-Earth3"         # Base EC-Earth3 is available
+    ],
+    "General Basin Hydrology (Well-balanced for West Africa)": [
+        "MIROC6", 
+        "MPI-ESM1-2-LR", 
+        "CNRM-CM6-1"
+    ]
 }
 
 # --- UI LAYOUT ---
