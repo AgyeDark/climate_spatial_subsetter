@@ -176,7 +176,21 @@ if st.session_state.data_extracted and st.session_state.final_file and os.path.e
                 fig = px.line(df, x="Date", y=variable, title=f"Daily Basin Average: {model} ({scenario.upper()})")
                 st.plotly_chart(fig, use_container_width=True)
 
-    with col_b:
+    with tab3:
+        st.info("Download your extracted data for local GIS or statistical analysis.")
+        col_a, col_b = st.columns(2)
+        
+        with col_a:
+            with open(final_file, "rb") as file:
+                st.download_button(
+                    label="🗺️ Download GeoTIFF (.tif)",
+                    data=file,
+                    file_name=os.path.basename(final_file),
+                    mime="image/tiff",
+                    use_container_width=True
+                )
+                
+        with col_b:
             with rasterio.open(final_file) as src:
                 csv_data = src.read()
                 
