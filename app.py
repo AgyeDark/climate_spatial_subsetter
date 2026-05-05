@@ -156,8 +156,19 @@ if st.session_state.data_extracted and st.session_state.final_file and os.path.e
         with st.spinner('Calculating spatial averages...'):
             with rasterio.open(final_file) as src:
                 data = src.read()
-                data = np.where(data == src.nodata, np.nan, data)
-                daily_means = np.nanmean(data, axis=(1, 2))
+                
+                # 1. Filter out standard nodata values
+                if src.nodata is not None:
+                    data = np.where(data == src.nodata, np.nan, data)
+                
+                # 2. Filter out rogue Earth Engine ocean masks (like -9999)
+                data = np.where(data < -1000, np.nan, data)
+                
+                # 3. Calculate mean, ignoring the NaN ocean pixels
+                import warnings
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", category=RuntimeWarning)
+                    daily_means = np.nanmean(data, axis=(1, 2))
                 
                 dates = pd.date_range(start=target_start, periods=len(daily_means), freq='D')
                 df = pd.DataFrame({"Date": dates, variable: daily_means})
@@ -165,18 +176,30 @@ if st.session_state.data_extracted and st.session_state.final_file and os.path.e
                 fig = px.line(df, x="Date", y=variable, title=f"Daily Basin Average: {model} ({scenario.upper()})")
                 st.plotly_chart(fig, use_container_width=True)
 
-    with tab3:
-        st.info("Download your extracted data for local GIS or statistical analysis.")
-        col_a, col_b = st.columns(2)
-        with col_a:
-            with open(final_file, "rb") as file:
-                st.download_button(
-                    label="🗺️ Download GeoTIFF (.tif)",
-                    data=file,
-                    file_name=os.path.basename(final_file),
-                    mime="image/tiff",
-                    use_container_width=True
-                )
+    with col_b:
+            with rasterio.open(final_file) as src:
+                csv_data = src.read()
+                
+                if src.nodata is not None:
+                    csv_data = np.where(csv_data == src.nodata, np.nan, csv_data)
+                csv_data = np.where(csv_data < -1000, np.nan, csv_data)
+                
+                import warnings
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", category=RuntimeWarning)
+                    csv_means = np.nanmean(csv_data, axis=(1, 2))
+                    
+                csv_dates = pd.date_range(start=target_start, periods=len(csv_means), freq='D')
+                csv_df = pd.DataFrame({"Date": csv_dates, variable: csv_means})
+                
+            csv = csv_df.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📊 Download Time Series (.csv)",
+                data=csv,
+                file_name=f"{model}_{scenario}_{var_shortcode}_timeseries.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
         with col_b:
             # Generate the CSV data right here so it's always ready to download
             with rasterio.open(final_file) as src:
