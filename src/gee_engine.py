@@ -1,8 +1,9 @@
-import ee
-import requests
-import os
+import ee
 import streamlit as st
+import os
+from google.oauth2 import service_account
 
+# --- NEW AUTHENTICATION CODE ---
 def initialize_gee():
     """
     Initializes the Earth Engine API using Streamlit Secrets if available, 
@@ -11,16 +12,23 @@ def initialize_gee():
     try:
         # Check if we are on Streamlit Cloud and have secrets
         if "gcp_service_account" in st.secrets:
-            credentials = ee.ServiceAccountCredentials(
-                st.secrets["gcp_service_account"]["client_email"],
-                st.secrets["gcp_service_account"]["private_key"]
-            )
+            # Convert the Streamlit secrets into a standard Python dictionary
+            secret_dict = dict(st.secrets["gcp_service_account"])
+            
+            # Create credentials directly from memory (no files needed!)
+            credentials = service_account.Credentials.from_service_account_info(secret_dict)
+            
+            # Initialize Earth Engine with these credentials
             ee.Initialize(credentials)
         else:
             # Fallback for local testing on your Windows machine
             ee.Initialize()
     except Exception as e:
-        print("Earth Engine not authorizedal.")
+        print("Earth Engine not authorized.")
+        raise e
+
+# Run the authentication before doing anything else
+initialize_gee()l.")
         raise e
 
 def download_gee_fallback(model, scenario, variable, start_date, end_date, min_lon, max_lon, min_lat, max_lat, output_dir="data/raw"):
