@@ -66,7 +66,8 @@ def download_gee_fallback(model, scenario, variable, start_date, end_date, min_l
     
     print(f"Found {count} daily records. Processing spatial clip...")
 
-    clipped_image = collection.mean().clip(region)
+    # .toBands() stacks all 365 daily images into a single GeoTIFF file as layers
+    clipped_image = collection.toBands().clip(region)
 
     print("Generating direct download URL...")
     try:
