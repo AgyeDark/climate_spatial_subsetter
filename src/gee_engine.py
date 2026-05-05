@@ -1,15 +1,26 @@
 import ee
 import requests
-import os
-
-def initialize_gee():
-    """
-    Initializes the Earth Engine API. 
-    """
-    try:
-        ee.Initialize()
-    except Exception as e:
-        print("Earth Engine not authorized. Run 'earthengine authenticate' in your terminal.")
+import os
+import streamlit as st
+
+def initialize_gee():
+    """
+    Initializes the Earth Engine API using Streamlit Secrets if available, 
+    otherwise falls back to local authentication.
+    """
+    try:
+        # Check if we are on Streamlit Cloud and have secrets
+        if "gcp_service_account" in st.secrets:
+            credentials = ee.ServiceAccountCredentials(
+                st.secrets["gcp_service_account"]["client_email"],
+                st.secrets["gcp_service_account"]["private_key"]
+            )
+            ee.Initialize(credentials)
+        else:
+            # Fallback for local testing on your Windows machine
+            ee.Initialize()
+    except Exception as e:
+        print("Earth Engine not authorizedal.")
         raise e
 
 def download_gee_fallback(model, scenario, variable, start_date, end_date, min_lon, max_lon, min_lat, max_lat, output_dir="data/raw"):
