@@ -1,0 +1,17 @@
+$null 
+
+# Ignore downloaded data files
+data/
+*.nc
+*.tif
+*.csv
+
+# Ignore Python cache and virtual environments
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+venv/
+env/
+
+# Ignore Streamlit secrets
+.streamlit/secrets.toml

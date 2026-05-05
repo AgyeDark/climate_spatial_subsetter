@@ -1,0 +1,7 @@
+streamlit==1.32.0
+xarray==2024.2.0
+netCDF4==1.6.5
+dask==2024.2.1
+earthengine-api==0.1.393
+geemap==0.32.0
+requests==2.31.0
