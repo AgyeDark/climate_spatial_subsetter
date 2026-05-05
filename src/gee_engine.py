@@ -2,6 +2,7 @@ import ee
 import streamlit as st
 import os
 import requests
+import json
 from google.oauth2 import service_account
 
 # ==========================================
@@ -9,27 +10,31 @@ from google.oauth2 import service_account
 # ==========================================
 def initialize_gee():
     try:
-        # --- NEW WIRETAP CODE ---
-        print("\n--- AUTHENTICATION CHECK ---")
-        print("Keys found in Streamlit Secrets:", list(st.secrets.keys()))
-        # ------------------------
-
         # Check if we are on Streamlit Cloud and have secrets
         if "GOOGLE_CREDENTIALS" in st.secrets:
-            print("GOOGLE_CREDENTIALS found! Attempting login...")
             # Safely decode the raw JSON string
             secret_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"])
-            credentials = service_account.Credentials.from_service_account_info(secret_dict)
+            
+            # --- CRITICAL FIX: Tell Google we want Earth Engine access ---
+            ee_scopes = [
+                'https://www.googleapis.com/auth/earthengine',
+                'https://www.googleapis.com/auth/cloud-platform'
+            ]
+            credentials = service_account.Credentials.from_service_account_info(
+                secret_dict, 
+                scopes=ee_scopes
+            )
+            # -------------------------------------------------------------
+            
             ee.Initialize(credentials)
-            print("Earth Engine Login Successful!")
         else:
-            print("WARNING: GOOGLE_CREDENTIALS not found in secrets. Falling back to local mode.")
             # Fallback for local testing
+            print("WARNING: GOOGLE_CREDENTIALS not found in Streamlit Secrets.")
             ee.Initialize()
     except Exception as e:
         print("Earth Engine not authorized.")
         raise e
-
+        
 # ==========================================
 # 2. DOWNLOAD FUNCTION
 # ==========================================
