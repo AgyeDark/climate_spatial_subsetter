@@ -157,14 +157,16 @@ if st.session_state.data_extracted and st.session_state.final_file and os.path.e
             with rasterio.open(final_file) as src:
                 data = src.read()
                 
-                # 1. Filter out standard nodata values
+                # 1. Filter out standard nodata values (if present in metadata)
                 if src.nodata is not None:
                     data = np.where(data == src.nodata, np.nan, data)
                 
-                # 2. Filter out rogue Earth Engine ocean masks (like -9999)
+                # 2. Catch massive positive Fill Values (like 1e19 or 1e20 from CMIP6)
+                data = np.where(data > 10000, np.nan, data)
+                
+                # 3. Catch rogue Earth Engine negative masks (like -9999)
                 data = np.where(data < -1000, np.nan, data)
                 
-                # 3. Calculate mean, ignoring the NaN ocean pixels
                 import warnings
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore", category=RuntimeWarning)
@@ -197,6 +199,9 @@ if st.session_state.data_extracted and st.session_state.final_file and os.path.e
                 
                 if src.nodata is not None:
                     csv_data = np.where(csv_data == src.nodata, np.nan, csv_data)
+                    
+                # The same massive positive/negative filters for the CSV
+                csv_data = np.where(csv_data > 10000, np.nan, csv_data)
                 csv_data = np.where(csv_data < -1000, np.nan, csv_data)
                 
                 import warnings
@@ -214,7 +219,7 @@ if st.session_state.data_extracted and st.session_state.final_file and os.path.e
                 file_name=f"{model}_{scenario}_{var_shortcode}_timeseries.csv",
                 mime="text/csv",
                 use_container_width=True,
-                key="download_csv_btn"  
+                key="download_csv_btn"
             )
         with col_b:
             # Generate the CSV data right here so it's always ready to download
