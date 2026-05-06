@@ -156,7 +156,7 @@ if st.session_state.data_extracted and st.session_state.final_file:
         
         st.markdown("### 📊 Data Analysis & Export")
         
-        tab1, tab2, tab3 = st.tabs(["🗺️ Spatial Map", "📈 Time Series", "💾 Download Files"])
+        tab1, tab2, tab3, tab4 = st.tabs(["🗺️ Spatial Map", "📈 Time Series", "💾 Download Files", "🏜️ Drought Analysis"])
         
         with tab1:
             st.markdown(f"**Bounding Box:** [{min_lon}°, {min_lat}°] to [{max_lon}°, {max_lat}°]")
@@ -234,6 +234,67 @@ if st.session_state.data_extracted and st.session_state.final_file:
                     use_container_width=True,
                     key="download_csv_btn"
                 )
+        with tab4:
+            st.markdown("### 🏜️ Meteorological Drought Index")
+            
+            # Drought analysis only makes sense if they downloaded Precipitation
+            if "pr" not in var_shortcode:
+                st.warning("⚠️ Drought analysis requires Precipitation data. Please change your variable selection in the sidebar and re-extract.")
+            else:
+                col_scale, col_desc = st.columns([1, 2])
+                with col_scale:
+                    # Let the user pick the drought timescale
+                    drought_scale = st.selectbox("Timescale", ["3-Month (Agricultural)", "6-Month (Seasonal)", "12-Month (Hydrological)"])
+                    window = int(drought_scale.split("-")[0])
+                
+                with col_desc:
+                    st.info(f"**How it works:** This calculates a Standardized Precipitation Anomaly. It rolls the daily data into {window}-month totals and measures how many standard deviations it falls above or below the baseline average.")
+
+                with st.spinner("Calculating rolling water deficits..."):
+                    # 1. Take the daily DataFrame from Tab 2 and group it by Month
+                    # 'MS' means Month Start (e.g., 2030-01-01, 2030-02-01)
+                    monthly_df = df.set_index("Date").resample("MS").sum().reset_index()
+                    
+                    # 2. Calculate the rolling sum based on user's selected window
+                    monthly_df['Rolling_Sum'] = monthly_df[variable].rolling(window=window).sum()
+                    
+                    # 3. Calculate the Standardized Anomaly (Z-Score)
+                    mean_val = monthly_df['Rolling_Sum'].mean()
+                    std_val = monthly_df['Rolling_Sum'].std()
+                    
+                    monthly_df['Drought_Index'] = (monthly_df['Rolling_Sum'] - mean_val) / std_val
+                    
+                    # 4. Color code it for the chart: Red for drought, Blue for wet
+                    monthly_df['Color'] = np.where(monthly_df['Drought_Index'] < 0, 'Drought', 'Wet')
+                    
+                    # 5. Drop the NaN values created by the rolling window
+                    plot_df = monthly_df.dropna()
+
+                    # Draw a beautiful alternating bar chart
+                    fig_drought = px.bar(
+                        plot_df, 
+                        x="Date", 
+                        y="Drought_Index", 
+                        color="Color",
+                        color_discrete_map={'Drought': '#ef553b', 'Wet': '#00cc96'}, # Custom Red and Green/Blue
+                        title=f"{window}-Month Standardized Precipitation Anomaly: {model}",
+                        labels={"Drought_Index": "Standard Deviations (σ)"}
+                    )
+                    
+                    # Add a zero line to visually anchor the chart
+                    fig_drought.add_hline(y=0, line_width=2, line_color="black")
+                    
+                    st.plotly_chart(fig_drought, use_container_width=True)
+                    
+                    # Add a quick data download for the drought index
+                    csv_drought = plot_df[["Date", "Rolling_Sum", "Drought_Index"]].to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label="⬇️ Download Drought Index Data (.csv)",
+                        data=csv_drought,
+                        file_name=f"{model}_{scenario}_{window}M_DroughtIndex.csv",
+                        mime="text/csv",
+                        use_container_width=True
+                    )
 
 st.divider()
 st.markdown("<p style='text-align: center; color: #888888;'>© 2026 Agyei Darko | Virtual Catchment Laboratory</p>", unsafe_allow_html=True)
