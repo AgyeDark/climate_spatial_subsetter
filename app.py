@@ -206,33 +206,33 @@ if st.session_state.data_extracted and st.session_state.final_file:
                             zip_file.write(f, os.path.basename(f))
                     
                     st.download_button(
-                        label="...",
-                        data=...,
-                        file_name="...",
-                        mime="...",
-                        width="stretch", 
-                        key="..."
+                        label="🗺️ Download GeoTIFFs (.zip)",
+                        data=zip_buffer.getvalue(),  # <--- The actual zip data
+                        file_name=f"{model}_{scenario}_{var_shortcode}_batch.zip",
+                        mime="application/zip",
+                        width="stretch",            
+                        key="dl_zip_btn"
                     )
                 else:
                     with open(file_list[0], "rb") as file:
                         st.download_button(
-                            label="...",
-                            data=...,
-                            file_name="...",
-                            mime="...",
-                            width="stretch",  
-                            key="..."
+                            label="🗺️ Download GeoTIFF (.tif)",
+                            data=file,               # <--- The actual file data
+                            file_name=os.path.basename(file_list[0]),
+                            mime="image/tiff",
+                            width="stretch",         
+                            key="dl_tif_btn"
                         )
                     
             with col_b:
                 csv = df.to_csv(index=False).encode('utf-8')
                 st.download_button(
-                    label="...",
-                    data=...,
-                    file_name="...",
-                    mime="...",
-                    width="stretch",  
-                    key="..."
+                    label="📊 Download Time Series (.csv)",
+                    data=csv,                        # <--- The actual CSV data
+                    file_name=f"{model}_{scenario}_{var_shortcode}_timeseries.csv",
+                    mime="text/csv",
+                    width="stretch",                
+                    key="download_csv_btn"
                 )
         with tab4:
             st.markdown("### 🏜️ Meteorological Drought Index")
@@ -288,12 +288,13 @@ if st.session_state.data_extracted and st.session_state.final_file:
                     
                     # Add a quick data download for the drought index
                     csv_drought = plot_df[["Date", "Rolling_Sum", "Drought_Index"]].to_csv(index=False).encode('utf-8')
+                    
                     st.download_button(
                         label="⬇️ Download Drought Index Data (.csv)",
-                        data=csv_drought,
+                        data=csv_drought,           # <--- The actual drought data
                         file_name=f"{model}_{scenario}_{window}M_DroughtIndex.csv",
                         mime="text/csv",
-                        width="stretch"  
+                        width="stretch"             
                     )
 
 st.divider()
