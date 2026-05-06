@@ -191,7 +191,7 @@ if st.session_state.data_extracted and st.session_state.final_file:
                 df = pd.DataFrame({"Date": dates, variable: all_means})
                 
                 fig = px.line(df, x="Date", y=variable, title=f"Daily Basin Average: {model} ({scenario.upper()})")
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
 
         with tab3:
             st.info("Download your extracted data for local GIS or statistical analysis.")
@@ -206,33 +206,33 @@ if st.session_state.data_extracted and st.session_state.final_file:
                             zip_file.write(f, os.path.basename(f))
                     
                     st.download_button(
-                        label="🗺️ Download GeoTIFFs (.zip)",
-                        data=zip_buffer.getvalue(),
-                        file_name=f"{model}_{scenario}_{var_shortcode}_batch.zip",
-                        mime="application/zip",
-                        use_container_width=True,
-                        key="dl_zip_btn"
+                        label="...",
+                        data=...,
+                        file_name="...",
+                        mime="...",
+                        width="stretch", 
+                        key="..."
                     )
                 else:
                     with open(file_list[0], "rb") as file:
                         st.download_button(
-                            label="🗺️ Download GeoTIFF (.tif)",
-                            data=file,
-                            file_name=os.path.basename(file_list[0]),
-                            mime="image/tiff",
-                            use_container_width=True,
-                            key="dl_tif_btn"
+                            label="...",
+                            data=...,
+                            file_name="...",
+                            mime="...",
+                            width="stretch",  
+                            key="..."
                         )
                     
             with col_b:
                 csv = df.to_csv(index=False).encode('utf-8')
                 st.download_button(
-                    label="📊 Download Time Series (.csv)",
-                    data=csv,
-                    file_name=f"{model}_{scenario}_{var_shortcode}_timeseries.csv",
-                    mime="text/csv",
-                    use_container_width=True,
-                    key="download_csv_btn"
+                    label="...",
+                    data=...,
+                    file_name="...",
+                    mime="...",
+                    width="stretch",  
+                    key="..."
                 )
         with tab4:
             st.markdown("### 🏜️ Meteorological Drought Index")
@@ -284,7 +284,7 @@ if st.session_state.data_extracted and st.session_state.final_file:
                     # Add a zero line to visually anchor the chart
                     fig_drought.add_hline(y=0, line_width=2, line_color="black")
                     
-                    st.plotly_chart(fig_drought, use_container_width=True)
+                    st.plotly_chart(fig_drought, width="stretch")
                     
                     # Add a quick data download for the drought index
                     csv_drought = plot_df[["Date", "Rolling_Sum", "Drought_Index"]].to_csv(index=False).encode('utf-8')
@@ -293,7 +293,7 @@ if st.session_state.data_extracted and st.session_state.final_file:
                         data=csv_drought,
                         file_name=f"{model}_{scenario}_{window}M_DroughtIndex.csv",
                         mime="text/csv",
-                        use_container_width=True
+                        width="stretch"  
                     )
 
 st.divider()
