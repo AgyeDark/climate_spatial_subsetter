@@ -190,7 +190,18 @@ if st.session_state.data_extracted and st.session_state.final_file:
                 dates = pd.date_range(start=target_start, periods=len(all_means), freq='D')
                 df = pd.DataFrame({"Date": dates, variable: all_means})
                 
+                # --- NEW: CMIP6 UNIT CONVERSION ---
+                if "pr" in var_shortcode:
+                    # Convert kg/m2/s to mm/day (multiply by seconds in a day: 60 * 60 * 24)
+                    df[variable] = df[variable] * 86400
+                    y_axis_label = "Precipitation (mm/day)"
+                else:
+                    # Convert Kelvin to Celsius
+                    df[variable] = df[variable] - 273.15
+                    y_axis_label = "Temperature (°C)"
+                
                 fig = px.line(df, x="Date", y=variable, title=f"Daily Basin Average: {model} ({scenario.upper()})")
+                fig.update_yaxes(title_text=y_axis_label) # Update the chart axis label!
                 st.plotly_chart(fig, width="stretch")
 
         with tab3:
