@@ -154,7 +154,13 @@ if st.button("Extract & Download Localized Data", type="primary"):
 # --- POST-EXTRACTION UI: TABS & ANALYSIS ---
 # ==========================================
 # Notice this is OUTSIDE the button block now! It checks the "memory" instead.
-if st.session_state.data_extracted and st.session_state.final_file and os.path.exists(st.session_state.final_file):
+if st.session_state.data_extracted and st.session_state.final_file:
+    
+    # 1. Normalize the files into a list immediately
+    file_list = st.session_state.final_file if isinstance(st.session_state.final_file, list) else [st.session_state.final_file]
+    
+    # 2. Check if the first file in the list actually exists on the server
+    if len(file_list) > 0 and os.path.exists(file_list[0]):
     
     final_file = st.session_state.final_file
     st.markdown("### 📊 Data Analysis & Export")
