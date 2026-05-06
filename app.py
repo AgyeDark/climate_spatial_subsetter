@@ -187,7 +187,8 @@ if st.session_state.data_extracted and st.session_state.final_file and os.path.e
                     data=file,
                     file_name=os.path.basename(final_file),
                     mime="image/tiff",
-                    use_container_width=True
+                    use_container_width=True,
+                    key="download_tif_btn"  # <--- ADD THIS UNIQUE KEY
                 )
                 
         with col_b:
@@ -212,7 +213,8 @@ if st.session_state.data_extracted and st.session_state.final_file and os.path.e
                 data=csv,
                 file_name=f"{model}_{scenario}_{var_shortcode}_timeseries.csv",
                 mime="text/csv",
-                use_container_width=True
+                use_container_width=True,
+                key="download_csv_btn"  
             )
         with col_b:
             # Generate the CSV data right here so it's always ready to download
