@@ -60,6 +60,22 @@ with col1:
     
     model = st.selectbox("Select Recommended GCM/RCM Model", recommended_models)
     scenario = st.selectbox("Select Scenario", ["Historical", "SSP245", "SSP585"])
+    scenario = st.sidebar.selectbox("Experiment / Scenario", ["Historical", "SSP126", "SSP245", "SSP370", "SSP585"])
+    
+    st.sidebar.markdown("### 📅 Temporal Subset")
+    if scenario.lower() == "historical":
+        # CMIP6 historical runs end in 2014
+        start_year, end_year = st.sidebar.slider(
+            "Select Year Range", 
+            min_value=1950, max_value=2014, value=(1990, 2000)
+        )
+    else:
+        # SSP scenarios start in 2015
+        start_year, end_year = st.sidebar.slider(
+            "Select Year Range", 
+            min_value=2015, max_value=2100, value=(2030, 2040)
+        )
+ 
     variable = st.selectbox("Select Variable", ["Precipitation (pr)", "Max Temperature (tasmax)", "Min Temperature (tasmin)"])
     
     st.markdown("<br>", unsafe_allow_html=True) # Adds a little visual spacing
@@ -95,8 +111,9 @@ if 'data_extracted' not in st.session_state:
 
 # Calculate variables outside the button so the UI can always see them
 var_shortcode = "pr" if "Precipitation" in variable else "tasmax" if "Max" in variable else "tasmin"
-target_start = '2000-01-01' if scenario.lower() == "historical" else '2030-01-01'
-target_end = '2000-12-31' if scenario.lower() == "historical" else '2030-12-31'
+# Dynamically create the start and end dates based on the slider
+target_start = f"{start_year}-01-01"
+target_end = f"{end_year}-12-31"
 
 if st.button("Extract & Download Localized Data", type="primary"):
     
